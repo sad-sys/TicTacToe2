@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X</title>
+</head>
+<body>
+    <p id = "gameCode">{{gameCode}}</p>
+    <p>gameState: {{gameState}}</p>
+    <form method="post" action="{% url 'joinAsO' %}">
+        {% csrf_token %}
+        <label for="gameCodeInput">Or input code: </label>
+        <input type="text" id="gameCodeInput" name="gameCodeInput"><br>
+        <input type="submit" value="Submit">
+        {% csrf_token %}
+    </form>
+</body>
+<script>
+function checkGameState() {
+    var gameCodeElement = document.getElementById('gameCode').textContent;
+    const url = '/checkGameState?gameCode=' + encodeURIComponent(gameCodeElement);
+
+    fetch(url)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Convert the response to JSON
+    })
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.url; // Redirect the browser to the new page
+        } else {
+            console.log(data); // Log other data
+        }
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+setInterval(checkGameState, 2000);
+
+</script>
+</html>
