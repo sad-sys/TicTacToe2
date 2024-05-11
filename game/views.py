@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 import json
 import datetime
 import random
@@ -46,12 +47,15 @@ def joinAsO(request):
         homePage(request)
     gameCode = specificGame.gameCode
     gameState = specificGame.gameState
-    context = {'gameCode': gameCode, 'gameState': gameState}
+    board = specificGame.board
+    context = {'gameCode': gameCode, 'gameState': gameState, "board":board}
     return render(request, "game/O.html", context)
 
-def xPlayer(request):
-    print("About to make a new page")
-    return render (request, "game/xPlayer.html")
+def xPlayer(request, gameCode):
+    print("Loading xPlayer page for game code:", gameCode)
+    specificGame = IndividualGame.objects.get(gameCode=gameCode)
+    board = specificGame.board
+    return render(request, "game/xPlayer.html", {'gameCode': gameCode,"board":board})
 
 
 def checkGameState(request):
@@ -60,7 +64,8 @@ def checkGameState(request):
         specificGame = IndividualGame.objects.get(gameCode=gameCode)
         gameState = specificGame.gameState
         if gameState:
-            return JsonResponse({'redirect': True, 'url': '/xPlayer'})
+            redirect_url = reverse('xPlayer', args=[gameCode])  # Correctly constructs the URL with the actual gameCode
+            return JsonResponse({'redirect': True, 'url': redirect_url})
         else:
             return JsonResponse({'gameState': gameState})
     except IndividualGame.DoesNotExist:
