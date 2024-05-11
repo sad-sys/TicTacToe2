@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 import json
 import datetime
@@ -57,7 +59,6 @@ def xPlayer(request, gameCode):
     board = specificGame.board
     return render(request, "game/xPlayer.html", {'gameCode': gameCode,"board":board})
 
-
 def checkGameState(request):
     gameCode = request.GET.get('gameCode', '').strip()
     try:
@@ -70,3 +71,24 @@ def checkGameState(request):
             return JsonResponse({'gameState': gameState})
     except IndividualGame.DoesNotExist:
         return JsonResponse({'error': 'Game not found'}, status=404)
+    
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+@require_POST
+@csrf_exempt  # This is generally not recommended without proper CSRF handling, especially in production.
+def updateGameBoard(request, gameCode):
+    try:
+        specificGame = IndividualGame.objects.get(gameCode=gameCode)
+    except IndividualGame.DoesNotExist:
+        return JsonResponse({"error": "Game not found"}, status=404)
+
+    new_board = request.POST.get('board')
+    if new_board:
+        specificGame.board = new_board.split(',')  # Assuming the board is sent as a comma-separated string
+        specificGame.save()
+        return JsonResponse({"status": "success", "new_board": specificGame.board})
+    else:
+        return JsonResponse({"error": "No board data provided"}, status=400)
+
