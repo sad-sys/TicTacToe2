@@ -79,38 +79,60 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+
+@csrf_exempt
 @require_POST
-@csrf_exempt  # This is generally not recommended without proper CSRF handling, especially in production.
 def updateGameBoard(request, gameCode):
     gameID = request.POST.get('gameID')
-    try:
-        specificGame = IndividualGame.objects.get(gameCode=gameCode)
 
-    except IndividualGame.DoesNotExist:
+    def get_game_by_code(game_code):
+        try:
+            return IndividualGame.objects.get(gameCode=game_code)
+        except IndividualGame.DoesNotExist:
+            return None
+
+    def update_game_board(specificGame, board_data, game_id):
+        specificGame.board = board_data.split(',')
+        toggle_turn(specificGame, game_id)
+        specificGame.save()
+        return specificGame.board
+
+    def toggle_turn(game, current_turn):
+        if game.gameTurn == "X" and current_turn == "X":
+            game.gameTurn = "O"
+        elif game.gameTurn == "O" and current_turn == "O":
+            game.gameTurn = "X"
+
+    specificGame = get_game_by_code(gameCode)
+    if not specificGame:
         return JsonResponse({"error": "Game not found"}, status=404)
-    print ("POST GAME ID is ", gameID)
-    print ("specificGame.gameTurn ", specificGame.gameTurn)
+    
+    print("POST GAME ID is ", gameID)
+    print("specificGame.gameTurn ", specificGame.gameTurn)
+
     if gameID == specificGame.gameTurn:
         new_board = request.POST.get('board')
         if new_board:
-            specificGame.board = new_board.split(',')
-            if specificGame.gameTurn == "X" and gameID == "X":
-                specificGame.gameTurn = "O"
-            elif specificGame.gameTurn == "O" and gameID == "O":
-                specificGame.gameTurn = "X"
-            specificGame.save()
-
-             # Assuming the board is sent as a comma-separated string
-            return JsonResponse({"status": "success", "new_board": specificGame.board})
+            updated_board = update_game_board(specificGame, new_board, gameID)
+            return JsonResponse({"status": "success", "new_board": updated_board})
         else:
             return JsonResponse({"error": "No board data provided"}, status=400)
-    else: 
-        print ("Not your turn")
-        pass
-@require_http_methods(["GET", "POST"])  # Allow both GET and POST requests
-@csrf_exempt  # Note: Using csrf_exempt is not recommended in production without proper CSRF protection
+    else:
+        print("Not your turn")
+        return JsonResponse({"error": "Not your turn"}, status=403)
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
 def getGameBoard(request, gameCode):
+    def get_game(game_code):
+        return get_object_or_404(IndividualGame, gameCode=game_code)
+
     if request.method == 'GET':
-        game = get_object_or_404(IndividualGame, gameCode=gameCode)
+        game = get_game(gameCode)
         return JsonResponse({'board': game.board})
-    # Handle POST request if necessary, here
+    # Additional handling for POST can be added here if necessary
+
