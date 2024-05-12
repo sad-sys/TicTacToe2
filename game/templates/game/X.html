@@ -8,6 +8,8 @@
 <body>
     <p id = "gameCode">{{gameCode}}</p>
     <p>gameState: {{gameState}}</p>
+    <p id="gameState">gameState: {{gameState}}</p>
+    <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
     <form method="post" action="{% url 'joinAsO' %}">
         {% csrf_token %}
         <label for="gameCodeInput">Or input code: </label>

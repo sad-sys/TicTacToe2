@@ -7,9 +7,11 @@
 </head>
 <body>
     <p>You are the Opponent O</p>
+    <p id = "gameID">O</p>
     <p id="gameCode">gameCode: {{gameCode}}</p>
     <p id="gameState">gameState: {{gameState}}</p>
     <p id="gameBoard">gameBoard: {{board}}</p>
+    <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
     <form id="gameInputForm" method="post">
         <label for="gameInput">Or input game: </label>
         <input type="text" id="gameInput" name="gameInput"><br>
@@ -25,7 +27,9 @@ document.addEventListener('DOMContentLoaded', function ()
 
         var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
         var newBoard = document.getElementById('gameInput').value;
-
+        var gameID = document.getElementById('gameID').textContent.trim();
+        console.log(gameID)
+        
         fetch(`/updateGameBoard/${gameCode}/`, 
         {
             method: 'POST',
@@ -33,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function ()
             {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: 'board=' + encodeURIComponent(newBoard)
+            body: `board=${encodeURIComponent(newBoard)}&gameID=${encodeURIComponent(gameID)}&gameTurn=${encodeURIComponent(gameTurn)}`
         })
         .then(response => response.json())
         .then(data =>
@@ -48,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function ()
             }
         })
         .catch(error => console.error('Error:', error));
+        
     };
 
     // Function to periodically fetch game board updates from the server
