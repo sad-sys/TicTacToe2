@@ -10,26 +10,50 @@
     <p id = "gameID">O</p>
     <p id="gameCode">gameCode: {{gameCode}}</p>
     <p id="gameState">gameState: {{gameState}}</p>
-    <p id="gameBoard">gameBoard: {{board}}</p>
+    <p id="gameBoard">Board: {{board}}</p>
     <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
-    <form id="gameInputForm" method="post">
-        <label for="gameInput">Or input game: </label>
-        <input type="text" id="gameInput" name="gameInput"><br>
-        <input type="submit" value="Submit">
-    </form>    
+    <p id = "wholeBoard">gameBoard: </p>
+    <canvas id="squareCanvas" width="300" height="300"></canvas>
 </body>
 <script>
-document.addEventListener('DOMContentLoaded', function ()
-{
-    document.getElementById('gameInputForm').onsubmit = function (e)
-    {
-        e.preventDefault(); // Stop the form from submitting normally
+var clickedSquare
+window.onload = function() {
+    const canvas = document.getElementById('squareCanvas');
+    const ctx = canvas.getContext('2d');
 
-        var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
-        var newBoard = document.getElementById('gameInput').value;
-        var gameID = document.getElementById('gameID').textContent.trim();
-        console.log(gameID)
+    const squareSize = 100; // Size of each square
+    const gridCount = 3; // 3x3 Grid
+
+    // Draw the grid
+    for (let row = 0; row < gridCount; row++) {
+        for (let col = 0; col < gridCount; col++) {
+            const x = col * squareSize;
+            const y = row * squareSize;
+            ctx.strokeRect(x, y, squareSize, squareSize);
+        }
+    }
+
+    // Add click event listener to the canvas
+    canvas.addEventListener('click', function(event) 
+    {
+        // Get the bounding rectangle of the canvas
+        const rect = canvas.getBoundingClientRect();
         
+        // Calculate the mouse click coordinates relative to the canvas
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        // Calculate which square was clicked
+        const col = Math.floor(x / squareSize);
+        const row = Math.floor(y / squareSize);
+        const clickedSquare = [col, row];
+        // Log the coordinates of the square
+        console.log(clickedSquare);
+        var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
+        var newBoard = clickedSquare;
+        var gameTurn = document.getElementById('gameTurn').value;
+        var gameID = document.getElementById('gameID').textContent.trim();
+
         fetch(`/updateGameBoard/${gameCode}/`, 
         {
             method: 'POST',
@@ -38,12 +62,13 @@ document.addEventListener('DOMContentLoaded', function ()
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: `board=${encodeURIComponent(newBoard)}&gameID=${encodeURIComponent(gameID)}&gameTurn=${encodeURIComponent(gameTurn)}`
-        })
-        .then(response => response.json())
-        .then(data =>
-        {
+            })
+            .then(response => response.json())
+            .then(data =>
+            {
             if (data.status === 'success')
             {
+                console.log(data.newBoard)
                 document.getElementById('gameBoard').textContent = "Game Board: " + data.new_board;
             } 
             else 
@@ -52,21 +77,32 @@ document.addEventListener('DOMContentLoaded', function ()
             }
         })
         .catch(error => console.error('Error:', error));
-        
-    };
+        });
 
+    // Function to handle form submissions
+
+};
+
+
+
+
+document.addEventListener('DOMContentLoaded', function ()
+{
     // Function to periodically fetch game board updates from the server
     setInterval(function ()
     {
         var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
-        fetch(`/getGameBoard/${gameCode}/`, { method: 'GET' })
+        fetch(`/getGameBoard/${gameCode}/`)
         .then(response => response.json())
         .then(data =>
         {
             document.getElementById('gameBoard').textContent = "Game Board: " + data.board;
+            document.getElementById('gameTurn').textContent = "Game Turn " + data.gameTurn;
+            document.getElementById('wholeBoard').textContent = "Complete Game Board: " + JSON.stringify(data.wholeBoard);
         })
         .catch(error => console.error('Error fetching the game board:', error));
     }, 2000);
+
 });
 </script>
 </html>

@@ -11,6 +11,14 @@ import datetime
 import random
 import string
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 from .models import IndividualGame
 # Create your views here.
 
@@ -34,6 +42,8 @@ def homePage(request):
     context = {'gameCode': gameCode, 'gameState': gameState}
     return render(request, "game/X.html", context)
 
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
 def joinAsO(request):
     if request.method == 'POST':
         gameCode = request.POST.get('gameCodeInput', '').strip()
@@ -74,21 +84,30 @@ def checkGameState(request):
             return JsonResponse({'gameState': gameState})
     except IndividualGame.DoesNotExist:
         return JsonResponse({'error': 'Game not found'}, status=404)
-    
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods, require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
 
 @csrf_exempt
 @require_POST
 def updateGameBoard(request, gameCode):
     gameID = request.POST.get('gameID')
 
+    def boardConverter(gameBoard, board, player):
+        # Extract column and row from the board list
+        col = board[0]
+        row = board[1]
+        # Update the gameBoard at the specified column and row
+        # Here, row_key accesses the correct row, and col accesses the correct column
+        row_key = str(row)
+        if row_key in gameBoard and col < len(gameBoard[row_key]):
+            gameBoard[row_key][col] = player  # Set the value to 1
+        return gameBoard
+    
+    def convertBoardDataIntoList(board_data):
+        board_dataList = []
+        for i in range(0,len(board_data)):
+            if i == 0 or i == 2:
+                board_dataList.append(int(board_data[i]))
+        return board_dataList
+        
     def get_game_by_code(game_code):
         try:
             return IndividualGame.objects.get(gameCode=game_code)
@@ -97,7 +116,12 @@ def updateGameBoard(request, gameCode):
 
     def update_game_board(specificGame, board_data, game_id):
         specificGame.board = board_data.split(',')
+        print ("Data to be passed into boardconverter", list(board_data))
         toggle_turn(specificGame, game_id)
+        board_data = convertBoardDataIntoList(board_data)
+        print (board_data)
+        specificGame.gameBoard = boardConverter(specificGame.gameBoard, board_data, specificGame.gameTurn)
+        print (specificGame.gameBoard)
         specificGame.save()
         return specificGame.board
 
@@ -133,6 +157,5 @@ def getGameBoard(request, gameCode):
 
     if request.method == 'GET':
         game = get_game(gameCode)
-        return JsonResponse({'board': game.board})
+        return JsonResponse({'board': game.board, "wholeBoard":game.gameBoard})
     # Additional handling for POST can be added here if necessary
-
