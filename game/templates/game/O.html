@@ -7,8 +7,47 @@
 </head>
 <body>
     <P> You are the Opponent O</P>
-    <p>gameCode: {{gameCode}}</p>
-    <p>gameState: {{gameState}}</p>
-    <p>gameBoard: {{board}}</p>
+    <p id  = "gameCode">gameCode: {{gameCode}}</p>
+    <p id = "gameState">gameState: {{gameState}}</p>
+    <p id = "gameBoard">gameBoard: {{board}}</p>
+    <form id="gameInputForm" method="post">
+        <label for="gameInput">Or input game: </label>
+        <input type="text" id="gameInput" name="gameInput"><br>
+        <input type="submit" value="Submit">
+    </form>    
 </body>
+<script>
+function updateBoard()
+{   
+    document.getElementById('gameInputForm').onsubmit = function(e) {
+        e.preventDefault();  // Stop the form from submitting normally
+
+        var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
+        var newBoard = document.getElementById('gameInput').value;
+
+        fetch(`/updateGameBoard/${gameCode}/`, 
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'board=' + encodeURIComponent(newBoard)
+        })
+        .then(response => response.json())
+        .then(data => 
+        {
+            if (data.status === 'success') 
+            {
+                document.getElementById('gameBoard').textContent = "Game Board: " + data.new_board;
+            } else 
+            {
+                console.error('Failed to update:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    };
+
+}
+setInterval(updateBoard, 2000);
+</script>
 </html>

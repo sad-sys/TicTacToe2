@@ -91,4 +91,13 @@ def updateGameBoard(request, gameCode):
         return JsonResponse({"status": "success", "new_board": specificGame.board})
     else:
         return JsonResponse({"error": "No board data provided"}, status=400)
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET", "POST"])  # Allow both GET and POST requests
+@csrf_exempt  # Note: Using csrf_exempt is not recommended in production without proper CSRF protection
+def getGameBoard(request, gameCode):
+    if request.method == 'GET':
+        game = get_object_or_404(IndividualGame, gameCode=gameCode)
+        return JsonResponse({'board': game.board})
+    # Handle POST request if necessary, here
 

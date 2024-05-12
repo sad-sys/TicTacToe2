@@ -1,48 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player X</title>
 </head>
 <body>
     <p>Player X</p>
-    <p id = "gameCode"> Game Board:{{gameCode}}</p>
-    <p id = "gameBoard"> Game Board:{{board}}</p>
+    <p id="gameCode">Game Board: {{gameCode}}</p>
+    <p id="gameBoard">Game Board: {{board}}</p>
     <form id="gameInputForm" method="post">
         <label for="gameInput">Or input game: </label>
         <input type="text" id="gameInput" name="gameInput"><br>
         <input type="submit" value="Submit">
     </form>    
-</body>
+
 <script>
-function updateBoard()
-{   
-    document.getElementById('gameInputForm').onsubmit = function(e) {
-        e.preventDefault();  // Stop the form from submitting normally
+document.addEventListener('DOMContentLoaded', function ()
+{
+// Function to handle form submissions
+document.getElementById('gameInputForm').onsubmit = function (e)
+{
+    e.preventDefault();  // Prevent the form from submitting normally
 
-        var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
-        var newBoard = document.getElementById('gameInput').value;
+    var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
+    var newBoard = document.getElementById('gameInput').value;
 
-        fetch(`/updateGameBoard/${gameCode}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'board=' + encodeURIComponent(newBoard)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.getElementById('gameBoard').textContent = "Game Board: " + data.new_board;
-            } else {
-                console.error('Failed to update:', data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    };
+    fetch(`/updateGameBoard/${gameCode}/`, 
+    {
+    method: 'POST',
+    headers:
+    {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'board=' + encodeURIComponent(newBoard)
+    })
+    .then(response => response.json())
+    .then(data =>
+    {
+    if (data.status === 'success')
+    {
+        document.getElementById('gameBoard').textContent = "Game Board: " + data.new_board;
+    } 
+    else 
+    {
+        console.error('Failed to update:', data.error);
+    }
+    })
+    .catch(error => console.error('Error:', error));
+};
 
-}
-setInterval(updateBoard, 2000);
-</script>
+// Function to periodically fetch game board updates from the server
+setInterval(function ()
+{
+    var gameCode = document.getElementById('gameCode').textContent.split(':').pop().trim();
+    fetch(`/getGameBoard/${gameCode}/`)
+    .then(response => response.json())
+    .then(data =>
+    {
+    document.getElementById('gameBoard').textContent = "Game Board: " + data.board;
+    })
+    .catch(error => console.error('Error fetching the game board:', error));
+}, 2000);
+});
+    </script>
+        
+</body>
 </html>
