@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,14 +18,44 @@
     <p id="gameBoard">Game Board: {{board}}</p>
     <p id="gameState">gameState: {{gameState}}</p>
     <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
-    <p id="wholeBoard">Game Board: {{gameBoard}}</p>
-
+    <p id="wholeBoard">{{gameBoard}}</p>
 
     <canvas id="squareCanvas" width="300" height="300"></canvas>
-
+    <img  id = "xImage" src="{% static '/game/x.png' %}" width="80" height="80">
+    <img  id = "oImage" src="{% static '/game/nought.jpg' %}" width="80" height="80">
 <script>
+function convertDictToArray(dict) 
+{
+    console.log("Starting dict is ", dict)
+    let result = [];
+    // Ensure dict is an object, not a string
+    if (typeof dict === 'string') 
+    {
+        dict = JSON.parse(dict);
+    }
+    // Iterate over the keys of the dictionary
+    for (let key in dict) 
+    {
+        result.push(dict[key]);
+    }
+    return result;
+}
+
+var xImage = new Image();
+xImage.src = '{% static "game/x.png" %}';
+xImage.onload = function() {
+    console.log("Image loaded successfully");
+};
+
+var oImage = new Image();
+oImage.src = '{% static "game/nought.jpg" %}';
+oImage.onload = function() {
+    console.log("Image loaded successfully");
+};
+
 var clickedSquare
-window.onload = function() {
+window.onload = function() 
+{
     const canvas = document.getElementById('squareCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -32,13 +63,17 @@ window.onload = function() {
     const gridCount = 3; // 3x3 Grid
 
     // Draw the grid
-    for (let row = 0; row < gridCount; row++) {
-        for (let col = 0; col < gridCount; col++) {
+    for (let row = 0; row < gridCount; row++) 
+    {
+        for (let col = 0; col < gridCount; col++) 
+        {
             const x = col * squareSize;
             const y = row * squareSize;
             ctx.strokeRect(x, y, squareSize, squareSize);
         }
     }
+
+
 
     // Add click event listener to the canvas
     canvas.addEventListener('click', function(event) 
@@ -53,6 +88,7 @@ window.onload = function() {
         // Calculate which square was clicked
         const col = Math.floor(x / squareSize);
         const row = Math.floor(y / squareSize);
+        
         const clickedSquare = [col, row];
         // Log the coordinates of the square
         console.log(clickedSquare);
@@ -60,7 +96,7 @@ window.onload = function() {
         var newBoard = clickedSquare;
         var gameTurn = document.getElementById('gameTurn').value;
         var gameID = document.getElementById('gameID').textContent.trim();
-
+        const targetSquare = [0, 1];
         fetch(`/updateGameBoard/${gameCode}/`, 
         {
             method: 'POST',
@@ -90,9 +126,6 @@ window.onload = function() {
 
 };
 
-
-
-
 document.addEventListener('DOMContentLoaded', function ()
 {
     // Function to periodically fetch game board updates from the server
@@ -105,7 +138,29 @@ document.addEventListener('DOMContentLoaded', function ()
         {
             document.getElementById('gameBoard').textContent = "Game Board: " + data.board;
             document.getElementById('gameTurn').textContent = "Game Turn " + data.gameTurn;
-            document.getElementById('wholeBoard').textContent = "Complete Game Board: " + JSON.stringify(data.wholeBoard);
+            document.getElementById('wholeBoard').textContent = JSON.stringify(data.wholeBoard);
+            var boardGameArr = convertDictToArray(document.getElementById('wholeBoard').textContent);
+            const canvas = document.getElementById('squareCanvas');
+            const ctx = canvas.getContext('2d');
+            const squareSize = 100; // Size of each square
+            const gridCount = 3; // 3x3 Grid
+            const rect = canvas.getBoundingClientRect();
+
+            for (i = 0; i < boardGameArr.length; i++)
+            {
+                for (j = 0; j < boardGameArr.length; j++)
+                {
+                    console.log(boardGameArr[i][j])
+                    if (boardGameArr[j][i] == "O")
+                    {
+                        ctx.drawImage(xImage, i * squareSize, j * squareSize, squareSize, squareSize);
+                    }
+                    else if (boardGameArr[j][i] == "X")
+                    {
+                        ctx.drawImage(oImage, i * squareSize, j * squareSize, squareSize, squareSize);
+                    }
+                }
+            }
         })
         .catch(error => console.error('Error fetching the game board:', error));
     }, 2000);

@@ -157,5 +157,5 @@ def getGameBoard(request, gameCode):
 
     if request.method == 'GET':
         game = get_game(gameCode)
-        return JsonResponse({'board': game.board, "wholeBoard":game.gameBoard})
+        return JsonResponse({'board': game.board, "wholeBoard":game.gameBoard, "gameTurn":game.gameTurn})
     # Additional handling for POST can be added here if necessary
