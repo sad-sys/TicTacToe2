@@ -5,17 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Opponent O</title>
+    <style>
+        body {
+            background-color: #f5deb3; /* wheat color for the bookish background */
+            color: #8b4513; /* dark brown text color */
+            font-family: 'Times New Roman', serif; /* Font that mimics classic book print */
+            padding: 20px; /* Padding around the content for aesthetics */
+        }
+        canvas {
+            border: 1px solid #000000;
+        }
+        img {
+            margin: 10px;
+        }
+        p {
+            font-size: 18px; /* Slightly larger font for readability */
+        }
+        #xImage, #oImage, #wholeBoard
+        {
+        display: none;
+        }       
+
+    </style>
 </head>
 <body>
-    <p id = "gameID">O</p>
-    <p id="gameCode">gameCode: {{gameCode}}</p>
-    <p id="gameState">gameState: {{gameState}}</p>
+    <h1>Game Interface - Player X</h1>
+    <p id="gameID">O</p>
+    <p id="gameCode">Game Code: {{gameCode}}</p>
+    <p id="gameState">Game State: {{gameState}}</p>
     <p id="gameBoard">Board: {{board}}</p>
-    <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
-    <p id = "wholeBoard">gameBoard: </p>
+    <p id="gameTurn">Game Turn: {{gameTurn}}</p>
+    <p id="wholeBoard">Complete Game Board: </p>
+
     <canvas id="squareCanvas" width="300" height="300"></canvas>
-    <img  id = "xImage" src="{% static '/game/x.png' %}" width="80" height="80">
-    <img  id = "oImage" src="{% static '/game/nought.jpg' %}" width="80" height="80">
+    <img id="xImage" src="{% static '/game/x.png' %}" width="60" height="60">
+    <img id="oImage" src="{% static '/game/nought.jpg' %}" width="60" height="60">
 </body>
 <script>
 function convertDictToArray(dict) 
@@ -157,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function ()
             }
         })
         .catch(error => console.error('Error fetching the game board:', error));
-    }, 2000);
+    }, 500);
 
 });
 </script>

@@ -4,20 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+        body {
+            background-color: #f5deb3; /* wheat color for the bookish background */
+            color: #8b4513; /* dark brown text color */
+            font-family: 'Times New Roman', serif; /* Font that mimics classic book print */
+            padding: 20px; /* Padding around the content for aesthetics */
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="submit"] {
+            margin-top: 10px;
+            font-size: 16px;
+            padding: 5px;
+        }
+        input[type="submit"] {
+            background-color: #deb887; /* light brown button */
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #bc8f8f; /* RosyBrown background for hover state */
+        }
+    </style>
 </head>
 <body>
-    <p id = "gameCode">{{gameCode}}</p>
-    <p>gameState: {{gameState}}</p>
+    <h1>Welcome to Our Game Portal</h1>
+    <p id="gameCode">{{gameCode}}</p>
     <p id="gameState">gameState: {{gameState}}</p>
-    <p id = "gameTurn">gameTurn:  {{gameTurn}}</p>
+    <p id="gameTurn">gameTurn: {{gameTurn}}</p>
     <form method="post" action="{% url 'joinAsO' %}">
         {% csrf_token %}
-        <label for="gameCodeInput">Or input code: </label>
+        <label for="gameCodeInput">Or input code:</label>
         <input type="text" id="gameCodeInput" name="gameCodeInput"><br>
         <input type="submit" value="Submit">
-        {% csrf_token %}
     </form>
-
 </body>
 <script>
 function checkGameState() {
@@ -43,6 +66,5 @@ function checkGameState() {
     });
 }
 setInterval(checkGameState, 2000);
-
 </script>
 </html>
