@@ -2,14 +2,14 @@
 <html lang="en">
 {% load static %}
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player X</title>
     <style>
         body {
-            background-color: #f5deb3; /* wheat color for the bookish background */
-            color: #8b4513; /* dark brown text color */
-            font-family: 'Times New Roman', serif; /* Font that mimics classic book print */
+            background-color: #32CD32; /* Lime green background */
+            color: #C71585; /* Deep pink text color */
+            font-family: 'Arial', sans-serif; /* Clean, readable font */
             padding: 20px; /* Padding around the content for aesthetics */
         }
         canvas {
@@ -21,9 +21,8 @@
         p {
             font-size: 18px; /* Slightly larger font for readability */
         }
-        #xImage, #oImage, #wholeBoard
-        {
-        display: none;
+        #xImage, #oImage, #wholeBoard {
+            display: none;
         }    
     </style>
 </head>
@@ -37,8 +36,6 @@
     <p id="wholeBoard">Complete Game Board: {{gameBoard}}</p>
 
     <canvas id="squareCanvas" width="300" height="300"></canvas>
-    <img id="xImage" src="{% static '/game/x.png' %}" width="60" height="60">
-    <img id="oImage" src="{% static '/game/nought.jpg' %}" width="60" height="60">
 </body>
 <script>
 function convertDictToArray(dict) 
@@ -59,13 +56,13 @@ function convertDictToArray(dict)
 }
 
 var xImage = new Image();
-xImage.src = '{% static "game/x.png" %}';
+xImage.src = '{% static "game/x1.png" %}';
 xImage.onload = function() {
     console.log("Image loaded successfully");
 };
 
 var oImage = new Image();
-oImage.src = '{% static "game/nought.jpg" %}';
+oImage.src = '{% static "game/nought.png" %}';
 oImage.onload = function() {
     console.log("Image loaded successfully");
 };

@@ -90,6 +90,26 @@ def checkGameState(request):
 def updateGameBoard(request, gameCode):
     gameID = request.POST.get('gameID')
 
+    def checkIfWon(game_board):
+        # Check rows for a winner
+        for row in game_board.values():
+            if row[0] == row[1] == row[2] and row[0] != 0:
+                return row[0]
+        
+        # Check columns for a winner
+        for col in range(3):
+            if game_board['0'][col] == game_board['1'][col] == game_board['2'][col] and game_board['0'][col] != 0:
+                return game_board['0'][col]
+        
+        # Check diagonals for a winner
+        if game_board['0'][0] == game_board['1'][1] == game_board['2'][2] and game_board['0'][0] != 0:
+            return game_board['0'][0]
+        if game_board['0'][2] == game_board['1'][1] == game_board['2'][0] and game_board['0'][2] != 0:
+            return  game_board['0'][2]
+    
+        # If no winner, return 'Noone'
+        return 'Noone'
+
     def boardConverter(gameBoard, board, player):
         # Extract column and row from the board list
         col = board[0]
@@ -99,6 +119,7 @@ def updateGameBoard(request, gameCode):
         row_key = str(row)
         if row_key in gameBoard and col < len(gameBoard[row_key]):
             gameBoard[row_key][col] = player  # Set the value to 1
+        print(checkIfWon(gameBoard))
         return gameBoard
     
     def convertBoardDataIntoList(board_data):
