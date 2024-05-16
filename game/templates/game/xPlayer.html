@@ -4,40 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player X</title>
+    <title>Player O</title>
     <style>
         body {
             background-color: #32CD32; /* Lime green background */
-            color: #C71585; /* Deep pink text color */
+            color: #c80681; /* Deep pink text color */
             font-family: 'Arial', sans-serif; /* Clean, readable font */
             padding: 20px; /* Padding around the content for aesthetics */
         }
-        canvas {
+        canvas 
+        {
             border: 1px solid #000000;
         }
-        img {
+        img 
+        {
             margin: 10px;
         }
-        p {
+        p 
+        {
             font-size: 18px; /* Slightly larger font for readability */
         }
-        #xImage, #oImage, #wholeBoard {
+        #xImage, #oImage, #wholeBoard 
+        {
             display: none;
         }    
     </style>
 </head>
 <body>
-    <h1>Game Interface - Player X</h1>
+    <h1>Game Interface - Player O</h1>
     <p id="gameID">X</p>
     <p id="gameCode">Game Code: {{gameCode}}</p>
     <p id="gameBoard">Game Board: {{board}}</p>
     <p id="gameState">Game State: {{gameState}}</p>
-    <p id="gameTurn">Game Turn: {{gameTurn}}</p>
+    <p id="gameTurn">Game Turn: {{gameTurn}}</p>.
     <p id="wholeBoard">Complete Game Board: {{gameBoard}}</p>
 
     <canvas id="squareCanvas" width="300" height="300"></canvas>
 </body>
 <script>
+
 function convertDictToArray(dict) 
 {
     console.log("Starting dict is ", dict)
@@ -75,6 +80,9 @@ window.onload = function()
 
     const squareSize = 100; // Size of each square
     const gridCount = 3; // 3x3 Grid
+    document.getElementById("gameTurn").style.display = "none";
+    document.getElementById("gameState").style.display = "none";
+    document.getElementById("gameID").style.display = "none";
 
     // Draw the grid
     for (let row = 0; row < gridCount; row++) 
@@ -86,8 +94,6 @@ window.onload = function()
             ctx.strokeRect(x, y, squareSize, squareSize);
         }
     }
-
-
 
     // Add click event listener to the canvas
     canvas.addEventListener('click', function(event) 
@@ -111,6 +117,8 @@ window.onload = function()
         var gameTurn = document.getElementById('gameTurn').value;
         var gameID = document.getElementById('gameID').textContent.trim();
         const targetSquare = [0, 1];
+
+        //Updates the gameBoard after a click
         fetch(`/updateGameBoard/${gameCode}/`, 
         {
             method: 'POST',
@@ -154,11 +162,11 @@ document.addEventListener('DOMContentLoaded', function ()
             document.getElementById('gameTurn').textContent = "Game Turn " + data.gameTurn;
             document.getElementById('wholeBoard').textContent = JSON.stringify(data.wholeBoard);
             var boardGameArr = convertDictToArray(document.getElementById('wholeBoard').textContent);
-            const canvas = document.getElementById('squareCanvas');
-            const ctx = canvas.getContext('2d');
-            const squareSize = 100; // Size of each square
-            const gridCount = 3; // 3x3 Grid
-            const rect = canvas.getBoundingClientRect();
+                const canvas = document.getElementById('squareCanvas');
+                const ctx = canvas.getContext('2d');
+                const squareSize = 100; // Size of each square
+                const gridCount = 3; // 3x3 Grid
+                const rect = canvas.getBoundingClientRect();
 
             for (i = 0; i < boardGameArr.length; i++)
             {
@@ -175,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function ()
                     }
                 }
             }
+        
         })
         .catch(error => console.error('Error fetching the game board:', error));
     }, 500);

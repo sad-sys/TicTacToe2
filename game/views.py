@@ -110,7 +110,7 @@ def updateGameBoard(request, gameCode):
         # If no winner, return 'Noone'
         return 'Noone'
 
-    def boardConverter(gameBoard, board, player):
+    def boardConverter(game, gameBoard, board, player):
         # Extract column and row from the board list
         col = board[0]
         row = board[1]
@@ -118,7 +118,12 @@ def updateGameBoard(request, gameCode):
         # Here, row_key accesses the correct row, and col accesses the correct column
         row_key = str(row)
         if row_key in gameBoard and col < len(gameBoard[row_key]):
-            gameBoard[row_key][col] = player  # Set the value to 1
+            if gameBoard[row_key][col] == 0:
+                gameBoard[row_key][col] = player 
+                current_turn = game.gameTurn
+                toggle_turn(game, current_turn)
+            else:
+                print ("Empty")
         print(checkIfWon(gameBoard))
         return gameBoard
     
@@ -137,12 +142,16 @@ def updateGameBoard(request, gameCode):
 
     def update_game_board(specificGame, board_data, game_id):
         specificGame.board = board_data.split(',')
+        oldBoard = specificGame.gameBoard.copy()
+        print("OldBoard is ", oldBoard)
         print ("Data to be passed into boardconverter", list(board_data))
-        toggle_turn(specificGame, game_id)
         board_data = convertBoardDataIntoList(board_data)
         print (board_data)
-        specificGame.gameBoard = boardConverter(specificGame.gameBoard, board_data, specificGame.gameTurn)
+        specificGame.gameBoard = boardConverter(specificGame, specificGame.gameBoard, board_data, specificGame.gameTurn)
+        specificGame.save()
         print (specificGame.gameBoard)
+        newBoard = specificGame.gameBoard
+        print("New Board is", newBoard)
         specificGame.save()
         return specificGame.board
 
@@ -151,6 +160,7 @@ def updateGameBoard(request, gameCode):
             game.gameTurn = "O"
         elif game.gameTurn == "O" and current_turn == "O":
             game.gameTurn = "X"
+
 
     specificGame = get_game_by_code(gameCode)
     if not specificGame:

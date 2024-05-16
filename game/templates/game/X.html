@@ -7,7 +7,7 @@
     <style>
         body {
             background-color: #32CD32; /* lime green background */
-            color: #C71585; /* deep pink text color */
+            color: #c80681; /* deep pink text color */
             font-family: 'Arial', sans-serif; /* Clean, readable font */
             padding: 20px; /* Padding around the content for aesthetics */
         }
@@ -18,10 +18,13 @@
         p {
             font-size: 24px; /* Big text size for paragraphs */
         }
-        form {
+        form 
+        {
             margin-top: 20px;
-            text-align: center; /* Center align form */
-        }
+            display: flex; /* Use flexbox for the form */
+            flex-direction: column; /* Arrange children in a column */
+            align-items: center; /* Center align items horizontally */
+    }
         input[type="text"], input[type="submit"] {
             margin-top: 10px;
             font-size: 16px;
@@ -40,6 +43,7 @@
     </style>
 </head>
 <body>
+<div class="content">
     <h1>Welcome to Our Game Portal</h1>
     <p id="gameCode">{{gameCode}}</p>
     <p id="gameState">gameState: {{gameState}}</p>
@@ -50,8 +54,15 @@
         <input type="text" id="gameCodeInput" name="gameCodeInput"><br>
         <input type="submit" value="Submit">
     </form>
+</div>
 </body>
 <script>
+window.onload = function() 
+{
+    document.getElementById("gameTurn").style.display = "none";
+    document.getElementById("gameState").style.display = "none";
+    document.getElementById("gameID").style.display = "none";
+}
 function checkGameState() {
     var gameCodeElement = document.getElementById('gameCode').textContent;
     const url = '/checkGameState?gameCode=' + encodeURIComponent(gameCodeElement);

@@ -4,11 +4,11 @@
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opponent O</title>
+    <title>Player X</title>
     <style>
         body {
             background-color: #32CD32; /* Lime green background */
-            color: #C71585; /* Deep pink text color */
+            color: #c80681; /* Deep pink text color */
             font-family: 'Arial', sans-serif; /* Clean, readable font */
             padding: 20px; /* Padding around the content for aesthetics */
         }
@@ -27,7 +27,7 @@
     </style>
 </head>
 <body>
-    <h1>Game Interface - Player O</h1>
+    <h1>Game Interface - Player X</h1>
     <p id="gameID">O</p>
     <p id="gameCode">Game Code: {{gameCode}}</p>
     <p id="gameState">Game State: {{gameState}}</p>
@@ -75,6 +75,10 @@ window.onload = function()
 
     const squareSize = 100; // Size of each square
     const gridCount = 3; // 3x3 Grid
+
+    document.getElementById("gameTurn").style.display = "none";
+    document.getElementById("gameState").style.display = "none";
+    document.getElementById("gameID").style.display = "none";
 
     // Draw the grid
     for (let row = 0; row < gridCount; row++) 
